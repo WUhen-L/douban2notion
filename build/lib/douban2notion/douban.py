@@ -122,7 +122,9 @@ def insert_movie(douban_name,notion_helper):
                 print(f"调试：更新属性键：{list(properties.keys())}")
                 notion_helper.update_page(
                     page_id=notion_movive.get("page_id"),
-                    properties=properties
+                    movie["短评"] = result.get("comment")
+                    movie["评分"] = rating.get(result.get("rating").get("value"))
+                    movie["状态"] = movie_status.get(result.get("status"))
             )
 
         else:
