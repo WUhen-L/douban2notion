@@ -119,6 +119,9 @@ def insert_movie(douban_name,notion_helper):
             ):
                 movie_without_date = movie.copy()
                 movie_without_date.pop("日期", None)
+                print(f"调试：movie_without_date 包含的键：{list(movie_without_date.keys())}")
+        if "日期" in movie_without_date:
+            print(f"警告：movie_without_date 中仍存在日期！值为：{movie_without_date['日期']}")
                 properties = utils.get_properties(movie, movie_properties_type_dict)
                 notion_helper.update_page(
                     page_id=notion_movive.get("page_id"),
