@@ -117,8 +117,9 @@ def insert_movie(douban_name,notion_helper):
                 or notion_movive.get("状态") != movie.get("状态")
                 or notion_movive.get("评分") != movie.get("评分")
             ):
+                movie_without_date = movie.copy()
+                movie_without_date.pop("日期", None)
                 properties = utils.get_properties(movie, movie_properties_type_dict)
-                notion_helper.get_date_relation(properties,create_time)
                 notion_helper.update_page(
                     page_id=notion_movive.get("page_id"),
                     properties=properties
