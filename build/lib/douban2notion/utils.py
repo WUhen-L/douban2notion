@@ -218,11 +218,9 @@ def get_first_and_last_day_of_week(date):
     return first_day_of_week, last_day_of_week
 
 
-def get_properties(dict1, dict2, allow_date=True):
+def get_properties(dict1, dict2):
     properties = {}
     for key, value in dict1.items():
-        if not allow_date and key == "日期":
-            continue
         type = dict2.get(key)
         if value == None:
             continue
@@ -246,16 +244,6 @@ def get_properties(dict1, dict2, allow_date=True):
         elif type == FILES:
             property = {"files": [{"type": "external", "name": "Cover", "external": {"url": value}}]}
         elif type == DATE:
-             # 仅允许日期时才生成
-            if allow_date:
-                property = {
-                    "date": {
-                        "start": pendulum.from_timestamp(
-                            value, tz="Asia/Shanghai"
-                        ).to_datetime_string(),
-                        "time_zone": "Asia/Shanghai",
-                    }
-                }
             property = {
                 "date": {
                     "start": pendulum.from_timestamp(
