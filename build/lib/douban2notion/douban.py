@@ -113,8 +113,7 @@ def insert_movie(douban_name,notion_helper):
         if notion_movie_dict.get(movie.get("豆瓣链接")):
             notion_movive = notion_movie_dict.get(movie.get("豆瓣链接"))
             if (
-                notion_movive.get("日期") != movie.get("日期")
-                or notion_movive.get("短评") != movie.get("短评")
+                notion_movive.get("短评") != movie.get("短评")
                 or notion_movive.get("状态") != movie.get("状态")
                 or notion_movive.get("评分") != movie.get("评分")
             ):
