@@ -265,9 +265,7 @@ class NotionHelper:
             results.extend(response.get("results"))
         return results
 
-    def get_date_relation(self, properties, date, update_date=True):
-        if not update_date:
-            return
+    def get_date_relation(self, properties, date):
         properties["年"] = get_relation(
             [
                 self.get_year_relation_id(date),
