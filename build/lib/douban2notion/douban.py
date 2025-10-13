@@ -103,7 +103,6 @@ def insert_movie(douban_name,notion_helper):
         create_time = pendulum.parse(create_time,tz=utils.tz)
         #时间上传到Notion会丢掉秒的信息，这里直接将秒设置为0
         create_time = create_time.replace(second=0)
-        movie["日期"] = create_time.int_timestamp
         movie["豆瓣链接"] = subject.get("url")
         movie["状态"] = movie_status.get(result.get("status"))
         if result.get("rating"):
@@ -112,20 +111,15 @@ def insert_movie(douban_name,notion_helper):
             movie["短评"] = result.get("comment")
         if notion_movie_dict.get(movie.get("豆瓣链接")):
             notion_movive = notion_movie_dict.get(movie.get("豆瓣链接"))
+            movie.pop("日期", None)
+            print(f"调试：更新前 movie 键：{list(movie.keys())}")
             if (
                 notion_movive.get("短评") != movie.get("短评")
                 or notion_movive.get("状态") != movie.get("状态")
                 or notion_movive.get("评分") != movie.get("评分")
             ):
-                movie_without_date = movie.copy()
-                movie_without_date.pop("日期", None)
-                print(f"调试：movie_without_date 包含的键：{list(movie_without_date.keys())}")
-        if "日期" in movie_without_date:
-            print(f"警告：movie_without_date 中仍存在日期！值为：{movie_without_date['日期']}")
-                properties = utils.get_properties(movie, movie_properties_type_dict)
-            print(f"调试：properties 包含的键：{list(properties.keys())}")
-        if "日期" in properties:
-            print(f"警告：properties 中仍存在日期！值为：{properties['日期']}")
+                 properties = utils.get_properties(movie, movie_properties_type_dict, allow_date=False)
+                print(f"调试：更新属性键：{list(properties.keys())}")
                 notion_helper.update_page(
                     page_id=notion_movive.get("page_id"),
                     properties=properties
@@ -136,6 +130,7 @@ def insert_movie(douban_name,notion_helper):
             cover = subject.get("pic").get("normal")
             if not cover.endswith('.webp'):
                 cover = cover.rsplit('.', 1)[0] + '.webp'
+            movie["日期"] = create_time.int_timestamp
             movie["封面"] = cover
             movie["类型"] = subject.get("type")
             if subject.get("genres"):
