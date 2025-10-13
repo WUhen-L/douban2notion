@@ -119,13 +119,16 @@ def insert_movie(douban_name,notion_helper):
                 or notion_movive.get("评分") != movie.get("评分")
             ):
                  update_fields = {
-        "电影名": movie.get("电影名"),    # 基础标识：确保 Notion 页面不丢失电影名
-        "豆瓣链接": movie.get("豆瓣链接"),# 基础标识：唯一匹配 Notion 页面的键
         "短评": movie.get("短评"),      # 需要更新的字段：有变化则覆盖
         "状态": movie.get("状态"),      # 需要更新的字段：有变化则覆盖
         "评分": movie.get("评分")       # 需要更新的字段：有变化则覆盖
     }
         update_fields = {k: v for k, v in update_fields.items() if v is not None}
+         properties = utils.get_properties(
+        dict1=update_fields,          # 仅包含必要字段的字典
+        dict2=movie_properties_type_dict,  # 属性类型映射（如短评=RICH_TEXT）
+        allow_date=False              # 终极保险：不生成日期属性
+    )
         
         else:
             print(f"插入{movie.get('电影名')}")
