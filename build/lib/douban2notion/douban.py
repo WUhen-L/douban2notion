@@ -103,6 +103,7 @@ def insert_movie(douban_name,notion_helper):
         create_time = pendulum.parse(create_time,tz=utils.tz)
         #时间上传到Notion会丢掉秒的信息，这里直接将秒设置为0
         create_time = create_time.replace(second=0)
+        movie["日期"] = create_time.int_timestamp
         movie["豆瓣链接"] = subject.get("url")
         movie["状态"] = movie_status.get(result.get("status"))
         if result.get("rating"):
@@ -111,31 +112,24 @@ def insert_movie(douban_name,notion_helper):
             movie["短评"] = result.get("comment")
         if notion_movie_dict.get(movie.get("豆瓣链接")):
             notion_movive = notion_movie_dict.get(movie.get("豆瓣链接"))
-            movie.pop("日期", None)
-            print(f"调试：更新前 movie 键：{list(movie.keys())}")
             if (
-                notion_movive.get("短评") != movie.get("短评")
+                notion_movive.get("日期") != movie.get("日期")
+                or notion_movive.get("短评") != movie.get("短评")
                 or notion_movive.get("状态") != movie.get("状态")
                 or notion_movive.get("评分") != movie.get("评分")
             ):
-                 update_fields = {
-        "短评": movie.get("短评"),      # 需要更新的字段：有变化则覆盖
-        "状态": movie.get("状态"),      # 需要更新的字段：有变化则覆盖
-        "评分": movie.get("评分")       # 需要更新的字段：有变化则覆盖
-    }
-        update_fields = {k: v for k, v in update_fields.items() if v is not None}
-         properties = utils.get_properties(
-        dict1=update_fields,          # 仅包含必要字段的字典
-        dict2=movie_properties_type_dict,  # 属性类型映射（如短评=RICH_TEXT）
-        allow_date=False              # 终极保险：不生成日期属性
-    )
-        
+                properties = utils.get_properties(movie, movie_properties_type_dict)
+                notion_helper.get_date_relation(properties,create_time)
+                notion_helper.update_page(
+                    page_id=notion_movive.get("page_id"),
+                    properties=properties
+            )
+
         else:
             print(f"插入{movie.get('电影名')}")
             cover = subject.get("pic").get("normal")
             if not cover.endswith('.webp'):
                 cover = cover.rsplit('.', 1)[0] + '.webp'
-            movie["日期"] = create_time.int_timestamp
             movie["封面"] = cover
             movie["类型"] = subject.get("type")
             if subject.get("genres"):
