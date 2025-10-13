@@ -118,13 +118,15 @@ def insert_movie(douban_name,notion_helper):
                 or notion_movive.get("状态") != movie.get("状态")
                 or notion_movive.get("评分") != movie.get("评分")
             ):
-                notion_helper.update_page(
-                    page_id=notion_movive.get("page_id"),
-                    movie["短评"] = result.get("comment")
-                    movie["评分"] = rating.get(result.get("rating").get("value"))
-                    movie["状态"] = movie_status.get(result.get("status"))
-            )
-
+                 update_fields = {
+        "电影名": movie.get("电影名"),    # 基础标识：确保 Notion 页面不丢失电影名
+        "豆瓣链接": movie.get("豆瓣链接"),# 基础标识：唯一匹配 Notion 页面的键
+        "短评": movie.get("短评"),      # 需要更新的字段：有变化则覆盖
+        "状态": movie.get("状态"),      # 需要更新的字段：有变化则覆盖
+        "评分": movie.get("评分")       # 需要更新的字段：有变化则覆盖
+    }
+        update_fields = {k: v for k, v in update_fields.items() if v is not None}
+        
         else:
             print(f"插入{movie.get('电影名')}")
             cover = subject.get("pic").get("normal")
